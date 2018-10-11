@@ -1,0 +1,1 @@
+Project to examine financial volatility, portfolio design and options using newer R libraries.
