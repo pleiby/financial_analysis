@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Overview
 ------------
-- see [Introduction to tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ00-introduction-to-tidyquant.html)
+- see [Introduction to tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ00-introduction-to-tidyquant.html) Matt Dancho, 2020-10-21
 
 ```{r}
 library(tidyverse)
@@ -69,6 +69,12 @@ tq_get_options()
 
 ### Stock Prices, Dividends and Splits
 The stock prices can be retrieved succinctly using `get = "stock.prices"`. This returns stock price data from Yahoo Finance.
+
+<!--
+Aside: net command was throwing error:
+`error “object 'required_pkgs' not found whilst loading namespace 'timetk'”`
+This obscure error was resolved by installing/updating package `recipes` 
+-->
 
 ```{r}
 aapl_prices  <- tq_get("AAPL", get = "stock.prices", from = " 1990-01-01")
