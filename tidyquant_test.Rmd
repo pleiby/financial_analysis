@@ -20,34 +20,35 @@ library(tidyverse)
 library(tidyquant)  # Loads tidyquant, tidyverse, lubridate, xts, quantmod, TTR 
 ```
 
-### A Few Core Functions with A Lot of Power
+### A Few Core Functions
 Minimizing the number of functions reduces the learning curve. What we’ve done is group the core functions into four categories:
 
 Get a Stock Index, `tq_index()`, or a Stock Exchange, `tq_exchange()`: Returns the stock symbols and various attributes for every stock in an index or exchange. Eighteen indexes and three exchanges are available.
 
 Get Quantitative Data, `tq_get()`: A one-stop shop to get data from various web-sources.
 
-Transmute, `tq_transmute()`, and Mutate, `tq_mutate()`, Quantitative Data: Perform and scale financial calculations completely within the tidyverse. These workhorse functions integrate the xts, zoo, quantmod, TTR, and PerformanceAnalytics packages.
+Transmute, `tq_transmute()`, and Mutate, `tq_mutate()`, Quantitative Data: Perform and scale financial calculations completely within the tidyverse. These workhorse functions integrate the xts, zoo, quantmod, TTR, and `PerformanceAnalytics` packages.
 
-Performance analysis, `tq_performance()`, and portfolio aggregation, `tq_portfolio()`: The PerformanceAnalytics integration enables analyzing performance of assets and portfolios. Refer to Performance Analysis with tidyquant.
+Performance analysis, `tq_performance()`, and portfolio aggregation, `tq_portfolio()`: The `PerformanceAnalytics` integration enables analyzing performance of assets and portfolios. Refer to Performance Analysis with tidyquant.
 
-For more information, refer to the first topic-specific vignette, [Core Functions in tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ01-core-functions-in-tidyquant.html).
+For more information, see [Core Functions in tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ01-core-functions-in-tidyquant.html).
 
 ### Integrates the Quantitative Analysis Functionality of xts/zoo, quantmod TTR and Performance Analytics
 
-For more information, refer to the second topic-specific vignette, [R Quantitative Analysis Package Integrations in tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ02-quant-integrations-in-tidyquant.html) .
+For more information, see second vignette, [R Quantitative Analysis Package Integrations in tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ02-quant-integrations-in-tidyquant.html) .
 
 ### Designed for the data science workflow of the tidyverse
 
-For more information, refer to the third topic-specific vignette, [Scaling and Modeling with tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ03-scaling-and-modeling-with-tidyquant.html).
+For more information, see third vignette, [Scaling and Modeling with tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ03-scaling-and-modeling-with-tidyquant.html).
 
 ### Implements ggplot2 Functionality for Financial Visualizations
 
-For more information, refer to the fourth topic-specific vignette, [Charting with tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ04-charting-with-tidyquant.html) .
+For more information, see fourth vignette, [Charting with tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ04-charting-with-tidyquant.html) .
 
 
 ### Performance Analysis of Asset and Portfolio Returns
-Asset and portfolio performance analysis is a deep field with a wide range of theories and methods for analyzing risk versus reward. The PerformanceAnalytics package consolidates many of the most widely used performance metrics as functions that can be applied to stock or portfolio returns. tidquant implements the functionality with two primary functions:
+
+Asset and portfolio performance analysis is a deep field with a wide range of theories and methods for analyzing risk versus reward. The `PerformanceAnalytics` package consolidates many of the most widely used performance metrics as functions that can be applied to stock or portfolio returns. tidyquant implements the functionality with two primary functions:
 
 - `tq_performance` implements the performance analysis functions in a tidy way, enabling scaling analysis using the split, apply, combine framework.
 - `tq_portfolio` provides a useful toolset for aggregating a group of individual asset returns into one or many portfolios.
@@ -85,6 +86,7 @@ Yahoo Japan stock prices can be retrieved using a similar call, `get = "stock.pr
 
 ```{r}
 x8411T <- tq_get("8411.T", get = "stock.prices.japan", from = "2016-01-01", to  = "2016-12-31")
+x8411T
 ```
 
 Dividends are obtained using get = "dividends".
@@ -106,12 +108,26 @@ The data source is Yahoo Finance and Yahoo Finance Japan.
 ### Financial Statements
 *Google Finance no longer provides access to financial statements*
 
+    Error: ‘getFinancials.google’ is defunct. Google Finance stopped providing data in March, 2018. 
+    You could try some of the data sources via Quandl instead.
+    See help("Defunct") and help("quantmod-defunct")
+
 For any given stock, a total of six financials statements are retrieved as nested tibbles, one for each combination of statement type (Income Statement, Balance Sheet, and Cash Flow) and period (by annual and quarter).
 
 ```{r}
 aapl_financials <- tq_get("AAPL", get = "financials")
-# aapl_financials
+aapl_financials
 
+```
+```{r}
+quantmod::getFin("COP")
+```
+```{r}
+stock <- tq_get("AAPL",# params$stock, 
+       get = "key.ratios") 
+
+
+print(stock)
 ```
 
 The statement information can be extracted by selecting (dplyr::select()) and filtering (dplyr::filter()) to the desired statement and unnesting (tidyr::unnest()) the results.
