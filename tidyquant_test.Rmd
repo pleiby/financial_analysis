@@ -472,7 +472,81 @@ wti_prices %>%
 ##  9 2008-09-30       101. 
 ## 10 2008-10-31        68.1
 ## # ... with 114 more rows
-Mutate Quantitative Data, tq_mutate
+
+## 3.0 Mutate Quantitative Data, tq_mutate
+
+Mutating functions enable the xts/zoo, quantmod and TTR functions to shine. We’ll touch on the mutation functions briefly using the FANG data set, which consists of daily prices for FB, AMZN, GOOG, and NFLX from the beginning of 2013 to the end of 2016. We’ll apply the functions to grouped data sets to get a feel for how each works
+
+data("FANG")
+
+FANG
+## # A tibble: 4,032 x 8
+##    symbol date        open  high   low close    volume adjusted
+##    <chr>  <date>     <dbl> <dbl> <dbl> <dbl>     <dbl>    <dbl>
+##  1 FB     2013-01-02  27.4  28.2  27.4  28    69846400     28  
+##  2 FB     2013-01-03  27.9  28.5  27.6  27.8  63140600     27.8
+##  3 FB     2013-01-04  28.0  28.9  27.8  28.8  72715400     28.8
+##  4 FB     2013-01-07  28.7  29.8  28.6  29.4  83781800     29.4
+##  5 FB     2013-01-08  29.5  29.6  28.9  29.1  45871300     29.1
+##  6 FB     2013-01-09  29.7  30.6  29.5  30.6 104787700     30.6
+##  7 FB     2013-01-10  30.6  31.5  30.3  31.3  95316400     31.3
+##  8 FB     2013-01-11  31.3  32.0  31.1  31.7  89598000     31.7
+##  9 FB     2013-01-14  32.1  32.2  30.6  31.0  98892800     31.0
+## 10 FB     2013-01-15  30.6  31.7  29.9  30.1 173242600     30.1
+## # … with 4,022 more rows
+For a detailed walkthrough of the compatible functions, see the next vignette in the series, R Quantitative Analysis Package Integrations in tidyquant.
+
+### 3.1 Transmute Quantitative Data, tq_transmute
+
+Transmute the results of tq_get(). Transmute here holds almost the same meaning as in dplyr, only the newly created columns will be returned, but with tq_transmute(), the number of rows returned can be different than the original data frame. This is important for changing periodicity. An example is periodicity aggregation from daily to monthly.
+
+FANG %>%
+    group_by(symbol) %>%
+    tq_transmute(select = adjusted, mutate_fun = to.monthly, indexAt = "lastof")
+## # A tibble: 192 x 3
+## # Groups:   symbol [4]
+##    symbol date       adjusted
+##    <chr>  <date>        <dbl>
+##  1 FB     2013-01-31     31.0
+##  2 FB     2013-02-28     27.2
+##  3 FB     2013-03-31     25.6
+##  4 FB     2013-04-30     27.8
+##  5 FB     2013-05-31     24.4
+##  6 FB     2013-06-30     24.9
+##  7 FB     2013-07-31     36.8
+##  8 FB     2013-08-31     41.3
+##  9 FB     2013-09-30     50.2
+## 10 FB     2013-10-31     50.2
+## # … with 182 more rows
+Let’s go through what happened. select allows you to easily choose what columns get passed to mutate_fun. In example above, adjusted selects the “adjusted” column from data, and sends it to the mutate function, to.monthly, which mutates the periodicity from daily to monthly. Additional arguments can be passed to the mutate_fun by way of .... We are passing the indexAt argument to return a date that matches the first date in the period.
+
+Working with non-OHLC data
+
+Returns from FRED, Oanda, and other sources do not have open, high, low, close (OHLC) format. However, this is not a problem with select. The following example shows how to transmute WTI Crude daily prices to monthly prices. Since we only have a single column to pass, we can leave the select argument as NULL which selects all columns by default. This sends the price column to the to.period mutate function.
+
+wti_prices <- tq_get("DCOILWTICO", get = "economic.data") 
+
+wti_prices %>%    
+    tq_transmute(mutate_fun = to.period,
+                 period     = "months", 
+                 col_rename = "WTI Price")
+## # A tibble: 123 x 2
+##    date       `WTI Price`
+##    <date>           <dbl>
+##  1 2011-01-31        91.0
+##  2 2011-02-28        97.1
+##  3 2011-03-31       106. 
+##  4 2011-04-29       113. 
+##  5 2011-05-31       103. 
+##  6 2011-06-30        95.3
+##  7 2011-07-29        95.7
+##  8 2011-08-31        88.8
+##  9 2011-09-30        78.9
+## 10 2011-10-31        93.2
+## # … with 113 more rows
+
+### 3.2 Mutate Quantitative Data, tq_mutate
+
 Adds a column or set of columns to the tibble with the calculated attributes (hence the original tibble is returned, mutated with the additional columns). An example is getting the MACD from close, which mutates the original input by adding MACD and Signal columns. Note that we can quickly rename the columns using the col_rename argument.
 
 FANG %>%
@@ -482,19 +556,19 @@ FANG %>%
               col_rename = c("MACD", "Signal"))
 ## # A tibble: 4,032 x 10
 ## # Groups:   symbol [4]
-##    symbol date        open  high   low close  volume adjusted  MACD Signal
-##    <chr>  <date>     <dbl> <dbl> <dbl> <dbl>   <dbl>    <dbl> <dbl>  <dbl>
-##  1 FB     2013-01-02  27.4  28.2  27.4  28    6.98e7     28      NA     NA
-##  2 FB     2013-01-03  27.9  28.5  27.6  27.8  6.31e7     27.8    NA     NA
-##  3 FB     2013-01-04  28.0  28.9  27.8  28.8  7.27e7     28.8    NA     NA
-##  4 FB     2013-01-07  28.7  29.8  28.6  29.4  8.38e7     29.4    NA     NA
-##  5 FB     2013-01-08  29.5  29.6  28.9  29.1  4.59e7     29.1    NA     NA
-##  6 FB     2013-01-09  29.7  30.6  29.5  30.6  1.05e8     30.6    NA     NA
-##  7 FB     2013-01-10  30.6  31.5  30.3  31.3  9.53e7     31.3    NA     NA
-##  8 FB     2013-01-11  31.3  32.0  31.1  31.7  8.96e7     31.7    NA     NA
-##  9 FB     2013-01-14  32.1  32.2  30.6  31.0  9.89e7     31.0    NA     NA
-## 10 FB     2013-01-15  30.6  31.7  29.9  30.1  1.73e8     30.1    NA     NA
-## # ... with 4,022 more rows
+##    symbol date        open  high   low close    volume adjusted  MACD Signal
+##    <chr>  <date>     <dbl> <dbl> <dbl> <dbl>     <dbl>    <dbl> <dbl>  <dbl>
+##  1 FB     2013-01-02  27.4  28.2  27.4  28    69846400     28      NA     NA
+##  2 FB     2013-01-03  27.9  28.5  27.6  27.8  63140600     27.8    NA     NA
+##  3 FB     2013-01-04  28.0  28.9  27.8  28.8  72715400     28.8    NA     NA
+##  4 FB     2013-01-07  28.7  29.8  28.6  29.4  83781800     29.4    NA     NA
+##  5 FB     2013-01-08  29.5  29.6  28.9  29.1  45871300     29.1    NA     NA
+##  6 FB     2013-01-09  29.7  30.6  29.5  30.6 104787700     30.6    NA     NA
+##  7 FB     2013-01-10  30.6  31.5  30.3  31.3  95316400     31.3    NA     NA
+##  8 FB     2013-01-11  31.3  32.0  31.1  31.7  89598000     31.7    NA     NA
+##  9 FB     2013-01-14  32.1  32.2  30.6  31.0  98892800     31.0    NA     NA
+## 10 FB     2013-01-15  30.6  31.7  29.9  30.1 173242600     30.1    NA     NA
+## # … with 4,022 more rows
 Note that a mutation can occur if, and only if, the mutation has the same structure of the original tibble. In other words, the calculation must have the same number of rows and row.names (or date fields), otherwise the mutation cannot be performed.
 
 Mutate rolling regressions with rollapply
@@ -528,7 +602,7 @@ returns_combined
 ##  8 2016-02-26    0.0320      0.0148 
 ##  9 2016-03-04    0.00436     0.0281 
 ## 10 2016-03-11    0.00941     0.0106 
-## # ... with 42 more rows
+## # … with 42 more rows
 Step 2: Create a custom function
 
 Next, create a custom regression function, which will be used to apply over the rolling window in Step 3. An important point is that the “data” will be passed to the regression function as an xts object. The timetk::tk_tbl function takes care of converting to a data frame for the lm function to work properly with the columns “fb.returns” and “xlk.returns”.
@@ -559,7 +633,7 @@ returns_combined %>%
 ##  8 2016-02-26    0.0320      0.0148      NA     NA
 ##  9 2016-03-04    0.00436     0.0281      NA     NA
 ## 10 2016-03-11    0.00941     0.0106      NA     NA
-## # ... with 42 more rows
+## # … with 42 more rows
 returns_combined
 ## # A tibble: 52 x 3
 ##    date       fb.returns xlk.returns
@@ -574,13 +648,15 @@ returns_combined
 ##  8 2016-02-26    0.0320      0.0148 
 ##  9 2016-03-04    0.00436     0.0281 
 ## 10 2016-03-11    0.00941     0.0106 
-## # ... with 42 more rows
+## # … with 42 more rows
 As shown above, the rolling regression coefficients were added to the data frame.
 
-_xy Variants, tq_mutate_xy and tq_transmute_xy
+3.3 _xy Variants, tq_mutate_xy and tq_transmute_xy
+
 Enables working with mutation functions that require two primary inputs (e.g. EVWMA, VWAP, etc).
 
 Mutate with two primary inputs
+
 EVWMA (exponential volume-weighted moving average) requires two inputs, price and volume. To work with these columns, we can switch to the xy variants, tq_transmute_xy() and tq_mutate_xy(). The only difference is instead of the select argument, you use x and y arguments to pass the columns needed based on the mutate_fun documentation.
 
 FANG %>%
@@ -601,4 +677,4 @@ FANG %>%
 ##  8 FB     2013-01-11  31.3  32.0  31.1  31.7  89598000     31.7  NA  
 ##  9 FB     2013-01-14  32.1  32.2  30.6  31.0  98892800     31.0  NA  
 ## 10 FB     2013-01-15  30.6  31.7  29.9  30.1 173242600     30.1  30.1
-## # ... with 4,022 more rows
+## # … with 4,022 more rows
