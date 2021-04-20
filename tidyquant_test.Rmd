@@ -20,7 +20,8 @@ library(tidyverse)
 library(tidyquant)  # Loads tidyquant, tidyverse, lubridate, xts, quantmod, TTR 
 ```
 
-### A Few Core Functions with A Lot of Power
+### A Few Core Functions
+Minimizing the number of functions reduces the learning curve. What we’ve done is group the core functions into four categories:
 
 Core functions grouped into four categories:
 
@@ -32,7 +33,7 @@ Core functions grouped into four categories:
 
 **Performance analysis**, `tq_performance()`, and **portfolio aggregation**, `tq_portfolio()`: The `PerformanceAnalytics` integration enables analyzing performance of assets and portfolios. Refer to Performance Analysis with tidyquant.
 
-For more information, refer to the first topic-specific vignette, [Core Functions in tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ01-core-functions-in-tidyquant.html).
+For more information, see [Core Functions in tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ01-core-functions-in-tidyquant.html).
 
 #### Integrates the Quantitative Analysis Functionality of xts/zoo, quantmod TTR and Performance Analytics
 
@@ -48,6 +49,7 @@ See the fourth vignette, [Charting with tidyquant](https://cran.r-project.org/we
 
 
 ### Performance Analysis of Asset and Portfolio Returns
+
 Asset and **portfolio performance analysis** is a deep field with a wide range of theories and methods for **analyzing risk versus reward**. The `PerformanceAnalytics` package consolidates many of the most widely used performance metrics as functions that can be applied to stock or portfolio returns. tidyquant implements the functionality with two primary functions:
 
 - `tq_performance` implements the performance analysis functions in a tidy way, enabling scaling analysis using the split, apply, combine framework.
@@ -157,12 +159,26 @@ wti_price_usd
 ### Financial Statements
 *Google Finance no longer provides access to financial statements*
 
+    Error: ‘getFinancials.google’ is defunct. Google Finance stopped providing data in March, 2018. 
+    You could try some of the data sources via Quandl instead.
+    See help("Defunct") and help("quantmod-defunct")
+
 For any given stock, a total of six financials statements are retrieved as nested tibbles, one for each combination of statement type (Income Statement, Balance Sheet, and Cash Flow) and period (by annual and quarter).
 
 ```{r}
 aapl_financials <- tq_get("AAPL", get = "financials")
-# aapl_financials
+aapl_financials
 
+```
+```{r}
+quantmod::getFin("COP")
+```
+```{r}
+stock <- tq_get("AAPL",# params$stock, 
+       get = "key.ratios") 
+
+
+print(stock)
 ```
 
 The statement information can be extracted by selecting (dplyr::select()) and filtering (dplyr::filter()) to the desired statement and unnesting (tidyr::unnest()) the results.
